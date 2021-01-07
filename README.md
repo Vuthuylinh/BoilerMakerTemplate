@@ -2,8 +2,8 @@
  * Create a project folder
    - npm init
    - git init
-   - make .gitignore file 
-   - Create a file called `secrets.js` in the project root
+   - make .gitignore file
+   - Create a file called `secrets.js` in the project root, then put in .gitignore
 
  * Create backbone folders
    - Client
@@ -17,6 +17,7 @@
     createdb $MY_APP_NAME-test
      * By default, running `npm test` will use `boilermaker-test`, while
   regular development uses `boilermaker`
-
+ * React
+  
 
 
