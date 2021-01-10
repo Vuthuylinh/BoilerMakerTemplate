@@ -2,6 +2,9 @@ const express = require('express')
 const path = require('path')
 const morgan = require('morgan')
 // const compression = require('compression')
+const session = require ("express-session")
+const passport = require ("passport")
+
 
 const  db = require('./db/database')
 const app = express()
@@ -18,11 +21,20 @@ const createApp = () => {
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
-// static middleware
-app.use(express.static(path.join(__dirname, '../public')))
+//session Middleware
+app.use(session({
+  secret:"a wild insecure secret",
+  resave: false,
+  saveUninitialized: false
+}))
+
+
 
 //api routes
 app.use('/api', require('./api'))
+
+// static middleware
+app.use(express.static(path.join(__dirname, '../public')))
 
 // sends index.html
 app.use('*', (req, res) => {
