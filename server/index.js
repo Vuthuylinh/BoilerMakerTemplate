@@ -2,11 +2,16 @@ const express = require('express')
 const path = require('path')
 const morgan = require('morgan')
 // const compression = require('compression')
+const  db = require('./db/database')
 const session = require ("express-session")
 const passport = require ("passport")
 
+// configure and create our database store to save session info in database even when we restart server
+const SequelizeStore = require("connect-session-sequelize")(session.Store)
+const dbStore = new SequelizeStore({db:db});
+// sync so that our session table gets created
+dbStore.sync();
 
-const  db = require('./db/database')
 const app = express()
 const PORT = process.env.PORT || 3000
 
@@ -23,7 +28,7 @@ app.use(express.urlencoded({extended: true}))
 
 //session Middleware
 app.use(session({
-  secret:"a wild insecure secret",
+  secret: process.env.SESSION_SECRET ||"a wild insecure secret",
   resave: false,
   saveUninitialized: false
 }))
