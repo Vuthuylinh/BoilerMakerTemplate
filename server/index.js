@@ -5,7 +5,7 @@ const morgan = require('morgan')
 const  db = require('./db/database')
 const session = require ("express-session")
 const passport = require ("passport")
-
+const User = require('./db/models/user')
 // configure and create our database store to save session info in database even when we restart server
 const SequelizeStore = require("connect-session-sequelize")(session.Store)
 const dbStore = new SequelizeStore({db:db});
@@ -29,12 +29,32 @@ app.use(express.urlencoded({extended: true}))
 //session Middleware
 app.use(session({
   secret: process.env.SESSION_SECRET ||"a wild insecure secret",
-  resave: false,
-  saveUninitialized: false
+  resave: false, //forces the session to be saved back to the session store
+  saveUninitialized: false //forces a session that is “uninitialized” to be saved to the store
 }))
 
+//initialize passport so that it will consume our req.session object, and attach the user to the request object. Make sure to put this AFTER our session middleware!
+app.use(passport.initialize());
+app.use(passport.session());
 
+//passport registration - to remember the user in our session store
+passport.serializeUser((user,done)=>{
+  try {
+    done(null,user.id)  //done function takes care of supplying user credentials after user is authenticated successfully. This function attaches the email id to the request object so that it is available on the callback url as "req.user".
+  } catch (err) {
+    done(err)
+  }
+})
+//to re-obtain the user from our database after user got serialized
+passport.deserializeUser(async (id,done)=>{
+  try {
+   const user = await User.findByPk(id)
+   done(null,user)
+  } catch (error) {
+    done(err)
+  }
 
+})
 //api routes
 app.use('/api', require('./api'))
 
